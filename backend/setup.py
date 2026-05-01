@@ -260,6 +260,7 @@ def run_setup(
     description: str = '',
     language: str = 'english',
     sandbox_enabled: bool = False,
+    password: str = '',
 ) -> dict:
     """
     Execute first-time setup:
@@ -373,7 +374,37 @@ def run_setup(
             except (json.JSONDecodeError, IOError):
                 pass
 
+        # 9. Persist admin password to .env
+        if password:
+            from werkzeug.security import generate_password_hash
+            pw_hash = generate_password_hash(password)
+            env_path = os.path.join(config.BASE_DIR, '.env')
+            _update_env_var(env_path, 'ADMIN_PASSWORD_HASH', pw_hash)
+
         return {'success': True, 'agent_id': agent_id}
 
     except Exception as e:
         return {'error': str(e)}
+
+
+def _update_env_var(env_path, key, value):
+    """Update or add an environment variable in a .env file."""
+    if not os.path.exists(env_path):
+        with open(env_path, 'w') as f:
+            f.write(f'{key}={value}\n')
+        return
+
+    with open(env_path, 'r') as f:
+        lines = f.readlines()
+
+    for i, line in enumerate(lines):
+        if line.startswith(f'{key}=') or line.startswith(f'{key} '):
+            lines[i] = f'{key}={value}\n'
+            break
+    else:
+        if lines and not lines[-1].endswith('\n'):
+            lines.append('\n')
+        lines.append(f'{key}={value}\n')
+
+    with open(env_path, 'w') as f:
+        f.writelines(lines)

@@ -56,6 +56,7 @@ def api_setup():
             description=data.get('description', ''),
             language=data.get('language', 'english'),
             sandbox_enabled=sandbox_enabled,
+            password=(data.get('password') or '').strip(),
         )
         if 'error' in result:
             return jsonify(result), 400

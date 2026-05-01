@@ -4,10 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Setup — Evonic</title>
+    <script>
+    // Anti-flash: apply theme before first paint
+    (function() {
+        var t = localStorage.getItem('evonic-theme') || 'system';
+        if (t === 'dark' || (t === 'system' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        }
+    })();
+    </script>
     <script src="{{ url_for('static', filename='js/tailwindcss.js') }}?v=1"></script>
+    <script>tailwind.config = { darkMode: 'class' };</script>
     <script src="{{ url_for('static', filename='js/jquery-3.7.1.min.js') }}"></script>
 </head>
-<body class="bg-gradient-to-br from-indigo-50 to-slate-100 min-h-screen flex items-center justify-center p-4">
+<body class="bg-gradient-to-br from-indigo-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 min-h-screen flex items-center justify-center p-4">
     <div class="w-full max-w-xl">
 
         <!-- Header -->
@@ -17,8 +27,8 @@
                     <rect x="10" y="1.5" width="12" height="12" rx="2" transform="rotate(45 10 1.5)" fill="white"/>
                 </svg>
             </div>
-            <h1 class="text-2xl font-bold text-gray-900">Evonic</h1>
-            <p class="text-gray-500 mt-1 text-sm">First-time setup</p>
+            <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100">Evonic</h1>
+            <p class="text-gray-500 dark:text-gray-400 mt-1 text-sm">First-time setup</p>
         </div>
 
         <!-- Step indicator -->
@@ -27,15 +37,20 @@
                 <div id="dot-1" class="w-8 h-8 rounded-full bg-indigo-600 text-white text-xs font-bold flex items-center justify-center transition-all">1</div>
                 <span id="label-1" class="text-xs font-medium text-indigo-600 hidden sm:block">Provider</span>
             </div>
-            <div class="w-8 h-px bg-gray-300"></div>
+            <div class="w-8 h-px bg-gray-300 dark:bg-gray-600"></div>
             <div class="flex items-center gap-2">
-                <div id="dot-2" class="w-8 h-8 rounded-full bg-gray-200 text-gray-400 text-xs font-bold flex items-center justify-center transition-all">2</div>
-                <span id="label-2" class="text-xs font-medium text-gray-400 hidden sm:block">Agent</span>
+                <div id="dot-2" class="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-400 dark:text-gray-500 text-xs font-bold flex items-center justify-center transition-all">2</div>
+                <span id="label-2" class="text-xs font-medium text-gray-400 dark:text-gray-500 hidden sm:block">Agent</span>
             </div>
-            <div class="w-8 h-px bg-gray-300"></div>
+            <div class="w-8 h-px bg-gray-300 dark:bg-gray-600"></div>
             <div class="flex items-center gap-2">
-                <div id="dot-3" class="w-8 h-8 rounded-full bg-gray-200 text-gray-400 text-xs font-bold flex items-center justify-center transition-all">3</div>
-                <span id="label-3" class="text-xs font-medium text-gray-400 hidden sm:block">Review</span>
+                <div id="dot-3" class="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-400 dark:text-gray-500 text-xs font-bold flex items-center justify-center transition-all">3</div>
+                <span id="label-3" class="text-xs font-medium text-gray-400 dark:text-gray-500 hidden sm:block">Review</span>
+            </div>
+            <div class="w-8 h-px bg-gray-300 dark:bg-gray-600"></div>
+            <div class="flex items-center gap-2">
+                <div id="dot-4" class="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-400 dark:text-gray-500 text-xs font-bold flex items-center justify-center transition-all">4</div>
+                <span id="label-4" class="text-xs font-medium text-gray-400 dark:text-gray-500 hidden sm:block">Password</span>
             </div>
         </div>
 
@@ -49,19 +64,19 @@
                     <p class="text-indigo-200 text-sm mt-0.5">Select where Evonic should send requests to generate AI responses.</p>
                 </div>
                 <div class="p-6 space-y-5">
-                    <div id="s1-error" class="hidden bg-red-50 border border-red-200 text-red-700 rounded-lg px-4 py-3 text-sm"></div>
+                    <div id="s1-error" class="hidden bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 rounded-lg px-4 py-3 text-sm"></div>
 
                     <!-- Provider selection -->
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Provider <span class="text-red-500">*</span></label>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Provider <span class="text-red-500">*</span></label>
                         <div id="provider-list" class="grid grid-cols-1 sm:grid-cols-2 gap-2">
                             {% for pid, p in providers.items() %}
                             <label class="provider-card flex items-start gap-3 border-2 rounded-xl p-3 cursor-pointer transition-all
                                 {% if pid == 'openrouter' %}border-indigo-500 bg-indigo-50{% else %}border-gray-200 hover:border-indigo-300{% endif %}">
                                 <input type="radio" name="provider" value="{{ pid }}" {% if pid == 'openrouter' %}checked{% endif %} class="mt-0.5 accent-indigo-600">
                                 <div>
-                                    <div class="text-sm font-semibold text-gray-800">{{ p.label }}</div>
-                                    <div class="text-xs text-gray-500">{{ p.description }}</div>
+                                    <div class="text-sm font-semibold text-gray-800 dark:text-gray-200">{{ p.label }}</div>
+                                    <div class="text-xs text-gray-500 dark:text-gray-400">{{ p.description }}</div>
                                 </div>
                             </label>
                             {% endfor %}
@@ -70,24 +85,24 @@
 
                     <!-- Base URL (shown for custom/local) -->
                     <div id="base-url-row">
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Base URL <span class="text-red-500">*</span></label>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Base URL <span class="text-red-500">*</span></label>
                         <input type="text" id="base-url" placeholder="https://openrouter.ai/api/v1"
-                            class="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20">
+                            class="w-full px-3 py-2.5 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 rounded-lg text-sm placeholder-gray-400 dark:placeholder-gray-500 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20">
                     </div>
 
                     <!-- API Key -->
                     <div id="api-key-row">
-                        <label class="block text-sm font-medium text-gray-700 mb-1">API Key <span id="api-key-required-marker" class="text-red-500">*</span><span id="api-key-optional-marker" class="hidden text-gray-400 font-normal">(optional)</span></label>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">API Key <span id="api-key-required-marker" class="text-red-500">*</span><span id="api-key-optional-marker" class="hidden text-gray-400 dark:text-gray-500 font-normal">(optional)</span></label>
                         <input type="password" id="api-key" placeholder="sk-..."
-                            class="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20">
+                            class="w-full px-3 py-2.5 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 rounded-lg text-sm placeholder-gray-400 dark:placeholder-gray-500 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20">
                     </div>
 
                     <!-- Model name -->
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Model Name <span class="text-red-500">*</span></label>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Model Name <span class="text-red-500">*</span></label>
                         <input type="text" id="model-name" placeholder="openai/gpt-4o-mini"
-                            class="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20">
-                        <p class="text-xs text-gray-400 mt-1">The model identifier sent to the API (e.g. <code class="bg-gray-100 px-1 rounded">openai/gpt-4o-mini</code>).</p>
+                            class="w-full px-3 py-2.5 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 rounded-lg text-sm placeholder-gray-400 dark:placeholder-gray-500 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20">
+                        <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">The model identifier sent to the API (e.g. <code class="bg-gray-100 dark:bg-gray-700 px-1 rounded">openai/gpt-4o-mini</code>).</p>
                     </div>
 
                     <!-- Test connection -->
@@ -121,21 +136,21 @@
                     <p class="text-indigo-200 text-sm mt-0.5">Configure the administrative agent that controls the platform.</p>
                 </div>
                 <div class="p-6 space-y-5">
-                    <div id="s2-error" class="hidden bg-red-50 border border-red-200 text-red-700 rounded-lg px-4 py-3 text-sm"></div>
+                    <div id="s2-error" class="hidden bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 rounded-lg px-4 py-3 text-sm"></div>
 
                     <!-- Agent name -->
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Agent Name <span class="text-red-500">*</span></label>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Agent Name <span class="text-red-500">*</span></label>
                         <input type="text" id="agent-name" placeholder="e.g., Admin"
-                            class="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20">
+                            class="w-full px-3 py-2.5 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 rounded-lg text-sm placeholder-gray-400 dark:placeholder-gray-500 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20">
                     </div>
 
                     <!-- Agent ID -->
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Agent ID <span class="text-red-500">*</span></label>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Agent ID <span class="text-red-500">*</span></label>
                         <input type="text" id="agent-id" placeholder="admin" autocomplete="off"
-                            class="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20">
-                        <p class="text-xs text-gray-400 mt-1">Alphanumeric and underscores only. Auto-derived from name. Cannot be changed later.</p>
+                            class="w-full px-3 py-2.5 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 rounded-lg text-sm placeholder-gray-400 dark:placeholder-gray-500 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20">
+                        <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">Alphanumeric and underscores only. Auto-derived from name. Cannot be changed later.</p>
                     </div>
 
                     <!-- Tone/style -->
@@ -144,11 +159,11 @@
                         <div class="space-y-2">
                             {% for tid, t in tones.items() %}
                             <label class="tone-card flex items-start gap-3 border-2 rounded-xl p-3 cursor-pointer transition-all
-                                {% if tid == 'professional' %}border-indigo-500 bg-indigo-50{% else %}border-gray-200 hover:border-indigo-300{% endif %}">
+                                {% if tid == 'professional' %}border-indigo-500 bg-indigo-50 dark:bg-indigo-950{% else %}border-gray-200 dark:border-gray-600 hover:border-indigo-300 dark:hover:border-indigo-500{% endif %}">
                                 <input type="radio" name="tone" value="{{ tid }}" {% if tid == 'professional' %}checked{% endif %} class="mt-0.5 accent-indigo-600">
                                 <div>
-                                    <div class="text-sm font-semibold text-gray-800">{{ t.label }}</div>
-                                    <div class="text-xs text-gray-500">{{ t.description }}</div>
+                                    <div class="text-sm font-semibold text-gray-800 dark:text-gray-200">{{ t.label }}</div>
+                                    <div class="text-xs text-gray-500 dark:text-gray-400">{{ t.description }}</div>
                                 </div>
                             </label>
                             {% endfor %}
@@ -157,15 +172,15 @@
 
                     <!-- Language preference -->
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Language <span class="text-red-500">*</span></label>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Language <span class="text-red-500">*</span></label>
                         <div class="space-y-2">
                             {% for lid, l in languages.items() %}
                             <label class="lang-card flex items-start gap-3 border-2 rounded-xl p-3 cursor-pointer transition-all
-                                {% if lid == 'english' %}border-indigo-500 bg-indigo-50{% else %}border-gray-200 hover:border-indigo-300{% endif %}">
+                                {% if lid == 'english' %}border-indigo-500 bg-indigo-50 dark:bg-indigo-950{% else %}border-gray-200 dark:border-gray-600 hover:border-indigo-300 dark:hover:border-indigo-500{% endif %}">
                                 <input type="radio" name="language" value="{{ lid }}" {% if lid == 'english' %}checked{% endif %} class="mt-0.5 accent-indigo-600">
                                 <div>
-                                    <div class="text-sm font-semibold text-gray-800">{{ l.label }}</div>
-                                    <div class="text-xs text-gray-500">{{ l.description }}</div>
+                                    <div class="text-sm font-semibold text-gray-800 dark:text-gray-200">{{ l.label }}</div>
+                                    <div class="text-xs text-gray-500 dark:text-gray-400">{{ l.description }}</div>
                                 </div>
                             </label>
                             {% endfor %}
@@ -174,14 +189,14 @@
 
                     <!-- Custom tone textarea -->
                     <div id="custom-tone-row" class="hidden">
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Custom Style Instructions</label>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Custom Style Instructions</label>
                         <textarea id="custom-tone-text" rows="3" placeholder="Describe how the agent should communicate..."
-                            class="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 resize-y"></textarea>
+                            class="w-full px-3 py-2.5 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 rounded-lg text-sm placeholder-gray-400 dark:placeholder-gray-500 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 resize-y"></textarea>
                     </div>
 
                     <div class="flex justify-between pt-2">
                         <button id="s2-back" type="button"
-                            class="px-4 py-2.5 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
+                            class="px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
                             &larr; Back
                         </button>
                         <button id="s2-next" type="button"
@@ -199,54 +214,84 @@
                     <p class="text-indigo-200 text-sm mt-0.5">Confirm your setup before creating the platform.</p>
                 </div>
                 <div class="p-6 space-y-5">
-                    <div id="s3-error" class="hidden bg-red-50 border border-red-200 text-red-700 rounded-lg px-4 py-3 text-sm"></div>
+                    <div id="s3-error" class="hidden bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 rounded-lg px-4 py-3 text-sm"></div>
 
                     <!-- Summary -->
-                    <div class="bg-gray-50 rounded-xl border border-gray-200 divide-y divide-gray-200 text-sm">
+                    <div class="bg-gray-50 dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 divide-y divide-gray-200 dark:divide-gray-700 text-sm">
                         <div class="flex justify-between px-4 py-3">
-                            <span class="text-gray-500 font-medium">Provider</span>
-                            <span id="review-provider" class="text-gray-900 font-semibold"></span>
+                            <span class="text-gray-500 dark:text-gray-400 font-medium">Provider</span>
+                            <span id="review-provider" class="text-gray-900 dark:text-gray-100 font-semibold"></span>
                         </div>
                         <div class="flex justify-between px-4 py-3">
-                            <span class="text-gray-500 font-medium">Model</span>
-                            <span id="review-model" class="text-gray-900"></span>
+                            <span class="text-gray-500 dark:text-gray-400 font-medium">Model</span>
+                            <span id="review-model" class="text-gray-900 dark:text-gray-100"></span>
                         </div>
                         <div class="flex justify-between px-4 py-3">
-                            <span class="text-gray-500 font-medium">Base URL</span>
-                            <span id="review-url" class="text-gray-900 text-xs break-all"></span>
+                            <span class="text-gray-500 dark:text-gray-400 font-medium">Base URL</span>
+                            <span id="review-url" class="text-gray-900 dark:text-gray-100 text-xs break-all"></span>
                         </div>
                         <div class="flex justify-between px-4 py-3">
-                            <span class="text-gray-500 font-medium">Agent Name</span>
-                            <span id="review-agent-name" class="text-gray-900"></span>
+                            <span class="text-gray-500 dark:text-gray-400 font-medium">Agent Name</span>
+                            <span id="review-agent-name" class="text-gray-900 dark:text-gray-100"></span>
                         </div>
                         <div class="flex justify-between px-4 py-3">
-                            <span class="text-gray-500 font-medium">Agent ID</span>
-                            <span id="review-agent-id" class="text-gray-900 font-mono text-xs"></span>
+                            <span class="text-gray-500 dark:text-gray-400 font-medium">Agent ID</span>
+                            <span id="review-agent-id" class="text-gray-900 dark:text-gray-100 font-mono text-xs"></span>
                         </div>
                         <div class="flex justify-between px-4 py-3">
-                            <span class="text-gray-500 font-medium">Style</span>
-                            <span id="review-tone" class="text-gray-900"></span>
+                            <span class="text-gray-500 dark:text-gray-400 font-medium">Style</span>
+                            <span id="review-tone" class="text-gray-900 dark:text-gray-100"></span>
                         </div>
                         <div class="flex justify-between px-4 py-3">
-                            <span class="text-gray-500 font-medium">Language</span>
-                            <span id="review-language" class="text-gray-900"></span>
+                            <span class="text-gray-500 dark:text-gray-400 font-medium">Language</span>
+                            <span id="review-language" class="text-gray-900 dark:text-gray-100"></span>
                         </div>
                     </div>
 
                     <div class="flex justify-between pt-2">
                         <button id="s3-back" type="button"
-                            class="px-4 py-2.5 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
+                            class="px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
                             &larr; Back
                         </button>
-                        <button id="create-btn" type="button"
-                            class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-6 py-2.5 rounded-lg text-sm transition-colors flex items-center gap-2">
-                            <span id="create-btn-text">&#9733; Create Platform</span>
-                            <span id="create-spinner" class="hidden">
-                                <svg class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
-                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
-                                </svg>
-                            </span>
+                        <button id="s3-next" type="button"
+                            class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-6 py-2.5 rounded-lg text-sm transition-colors">
+                            Next &rarr;
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== STEP 4: Password ===== -->
+            <div id="step-4" class="hidden">
+                <div class="bg-indigo-600 px-6 py-5">
+                    <h2 class="text-white font-semibold text-lg">Password</h2>
+                    <p class="text-indigo-200 text-sm mt-0.5">Set a password to secure your web dashboard.</p>
+                </div>
+                <div class="p-6 space-y-5">
+                    <div id="s4-error" class="hidden bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 rounded-lg px-4 py-3 text-sm"></div>
+
+                    <!-- Password -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Password <span class="text-red-500">*</span></label>
+                        <input type="password" id="password" placeholder="Enter a secure password" autocomplete="new-password"
+                            class="w-full px-3 py-2.5 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 rounded-lg text-sm placeholder-gray-400 dark:placeholder-gray-500 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20">
+                    </div>
+
+                    <!-- Confirm Password -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Confirm Password <span class="text-red-500">*</span></label>
+                        <input type="password" id="password-confirm" placeholder="Confirm your password" autocomplete="new-password"
+                            class="w-full px-3 py-2.5 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 rounded-lg text-sm placeholder-gray-400 dark:placeholder-gray-500 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20">
+                    </div>
+
+                    <div class="flex justify-between pt-2">
+                        <button id="s4-back" type="button"
+                            class="px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                            &larr; Back
+                        </button>
+                        <button id="s4-next" type="button"
+                            class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-6 py-2.5 rounded-lg text-sm transition-colors">
+                            &rarr; Create Platform
                         </button>
                     </div>
                 </div>
@@ -254,7 +299,7 @@
 
         </div>
 
-        <p class="text-center text-xs text-gray-400 mt-6">Evonic &mdash; First-time Setup</p>
+        <p class="text-center text-xs text-gray-400 dark:text-gray-500 mt-6">Evonic &mdash; First-time Setup</p>
     </div>
 
 <script>
@@ -267,8 +312,8 @@ let currentStep = 1;
 
 // ---- Provider card highlight ----
 $(document).on('change', 'input[name="provider"]', function() {
-    $('.provider-card').removeClass('border-indigo-500 bg-indigo-50').addClass('border-gray-200');
-    $(this).closest('.provider-card').addClass('border-indigo-500 bg-indigo-50').removeClass('border-gray-200');
+    $('.provider-card').removeClass('border-indigo-500 bg-indigo-50 dark:bg-indigo-950').addClass('border-gray-200 dark:border-gray-600');
+    $(this).closest('.provider-card').addClass('border-indigo-500 bg-indigo-50 dark:bg-indigo-950').removeClass('border-gray-200 dark:border-gray-600');
     updateProviderForm($(this).val());
     resetTestResult();
 });
@@ -373,7 +418,10 @@ $('#s2-next').on('click', function() {
 });
 
 $('#s3-back').on('click', function() { goToStep(2); });
-$('#create-btn').on('click', submitSetup);
+$('#s3-next').on('click', function() { goToStep(4); });
+
+$('#s4-back').on('click', function() { goToStep(3); });
+$('#s4-next').on('click', function() { if (!validateStep4()) return; submitSetup(); });
 
 // ---- Validation ----
 function validateStep1() {
@@ -402,6 +450,16 @@ function validateStep2() {
     return true;
 }
 
+function validateStep4() {
+    const pw = $('#password').val();
+    const pwConfirm = $('#password-confirm').val();
+    clearStepError(4);
+    if (!pw) { showStepError(4, 'Password is required.'); return false; }
+    if (pw.length < 6) { showStepError(4, 'Password must be at least 6 characters.'); return false; }
+    if (pw !== pwConfirm) { showStepError(4, 'Passwords do not match.'); return false; }
+    return true;
+}
+
 function populateReview() {
     const provider = $('input[name="provider"]:checked').val();
     const tone = $('input[name="tone"]:checked').val();
@@ -418,8 +476,7 @@ function populateReview() {
 // ---- Submit ----
 function submitSetup() {
     clearStepError(3);
-    $('#create-btn').prop('disabled', true);
-    $('#create-btn-text').text('Creating...');
+    $('#s4-next').prop('disabled', true);
     $('#create-spinner').removeClass('hidden');
 
     const payload = {
@@ -433,6 +490,7 @@ function submitSetup() {
         custom_tone_text: $('#custom-tone-text').val().trim(),
         language: $('input[name="language"]:checked').val(),
         description: '',
+        password: $('#password').val(),
     };
 
     $.ajax({
@@ -446,8 +504,7 @@ function submitSetup() {
         error: function(xhr) {
             const msg = (xhr.responseJSON || {}).error || 'Unexpected error. Please try again.';
             showStepError(3, msg);
-            $('#create-btn').prop('disabled', false);
-            $('#create-btn-text').html('&#9733; Create Platform');
+            $('#s4-next').prop('disabled', false);
             $('#create-spinner').addClass('hidden');
         }
     });
@@ -456,14 +513,14 @@ function submitSetup() {
 // ---- Step transitions ----
 function goToStep(n) {
     currentStep = n;
-    $('#step-1, #step-2, #step-3').addClass('hidden');
+    $('#step-1, #step-2, #step-3, #step-4').addClass('hidden');
     $('#step-' + n).removeClass('hidden');
     updateStepDots(n);
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 function updateStepDots(active) {
-    for (let i = 1; i <= 3; i++) {
+    for (let i = 1; i <= 4; i++) {
         const dot = $('#dot-' + i);
         const label = $('#label-' + i);
         if (i < active) {
