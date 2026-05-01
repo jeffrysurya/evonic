@@ -1,4 +1,4 @@
-# Kanban Agent Skill
+# Kanban Skill
 
 ## Overview
 You have access to the Kanban board. You can search for tasks assigned to you, update task statuses, delete tasks, and log progress comments.

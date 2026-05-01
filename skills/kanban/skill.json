@@ -1,6 +1,6 @@
 {
   "id": "kanban",
-  "name": "Kanban Agent",
+  "name": "Kanban",
   "version": "1.0.0",
   "description": "Allows agents to interact with the Kanban board: search tasks, pick up free-pick tasks, update status, and release tasks.",
   "author": "Evonic",
