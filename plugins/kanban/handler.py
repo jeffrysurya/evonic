@@ -32,6 +32,21 @@ def _get_owner_name():
         return 'UI User'
 
 
+def _is_autopilot(agent_id: str) -> bool:
+    """Check autopilot for an agent: agent column first, settings table fallback."""
+    try:
+        from models.db import db as _db2
+        agent = _db2.get_agent(agent_id)
+        if agent and agent.get('autopilot_enabled'):
+            return True
+        # Fallback to settings table for backward compatibility
+        if _db2.get_setting(f'autopilot:{agent_id}', '0') == '1':
+            return True
+    except Exception:
+        pass
+    return False
+
+
 # ─── Shared workflow state ─────────────────────────────────────────────────────
 
 _pending_tasks: dict = {}            # agent_id -> task_id (acknowledged, not started)
@@ -471,11 +486,7 @@ def _pre_set_execute_mode(agent_id: str, task: dict, sdk=None) -> bool:
     Prevents the runtime from resetting to plan mode when it sees a [System/Task]
     notification. Returns True if state was set, False if autopilot is OFF or error.
     """
-    try:
-        from models.db import db as _db
-        autopilot = _db.get_setting(f'autopilot:{agent_id}', '0') == '1'
-    except Exception:
-        autopilot = False
+    autopilot = _is_autopilot(agent_id)
     if not autopilot:
         return False
 
@@ -964,13 +975,12 @@ def _autopilot_handler(
 
     arg = args.strip().lower() if args else ""
     if not arg:
-        value = db.get_setting(f"autopilot:{agent_id}", "0")
-        state = "enabled" if value == "1" else "disabled"
+        state = "enabled" if _is_autopilot(agent_id) else "disabled"
         return f"Autopilot mode is currently {state}."
     if arg not in ("on", "off"):
         return "Usage: `/autopilot on` or `/autopilot off`"
 
-    db.set_setting(f"autopilot:{agent_id}", "1" if arg == "on" else "0")
+    db.update_agent(agent_id=agent_id, autopilot_enabled=(1 if arg == "on" else 0))
     status = "enabled" if arg == "on" else "disabled"
     agent_name = agent_id
     try:
@@ -1019,11 +1029,7 @@ def _state_handler(agent_id: str, session_id: str, agent_state, label: str, data
         _pending_tasks[agent_id] = task_id
         _task_state_since[agent_id] = time.time()
         _awaiting_approval.discard(agent_id)
-        try:
-            from models.db import db as _db
-            autopilot = _db.get_setting(f'autopilot:{agent_id}', '0') == '1'
-        except Exception:
-            autopilot = False
+        autopilot = _is_autopilot(agent_id)
         if autopilot:
             return {
                 'result': 'success',
@@ -1062,11 +1068,7 @@ def _state_handler(agent_id: str, session_id: str, agent_state, label: str, data
                 'message': "Missing task_id. Call state('kanban:activate', {'task_id': '<id>'}).",
             }
         # Gate: autopilot=OFF requires explicit user approval before activation
-        try:
-            from models.db import db as _db
-            autopilot = _db.get_setting(f'autopilot:{agent_id}', '0') == '1'
-        except Exception:
-            autopilot = True
+        autopilot = _is_autopilot(agent_id)
         if not autopilot and _approval_granted.get(agent_id) != task_id:
             # Inline fallback: if approval wasn't pre-set (e.g. model called activate
             # without waiting for the SYSTEM REMINDER), check the DB conversation now.
@@ -1411,11 +1413,7 @@ def _tool_guard(agent_id: str, tool_name: str, args: dict) -> dict | None:
         return None
 
     # Determine autopilot setting — governs which tools are allowed in pending state
-    try:
-        from models.db import db as _db
-        autopilot = _db.get_setting(f'autopilot:{agent_id}', '0') == '1'
-    except Exception:
-        autopilot = True  # fail open
+    autopilot = _is_autopilot(agent_id)
 
     allowed = KANBAN_ALLOWED_TOOLS if autopilot else KANBAN_APPROVAL_PENDING_TOOLS
     if tool_name in allowed:
@@ -1507,11 +1505,7 @@ def _message_interceptor(agent_id: str, content: str, messages: list):
                 return None
 
         # ── autopilot=OFF: check if user just approved via LLM classifier ────
-        try:
-            from models.db import db as _db
-            autopilot = _db.get_setting(f'autopilot:{agent_id}', '0') == '1'
-        except Exception:
-            autopilot = True
+        autopilot = _is_autopilot(agent_id)
 
         print(f'[kanban/interceptor] pending agent={agent_id} task={task_id} '
               f'autopilot={autopilot} granted={_approval_granted.get(agent_id)!r} '
@@ -1608,11 +1602,7 @@ def _message_interceptor(agent_id: str, content: str, messages: list):
         }
 
     # ── autopilot=ON active: detect plan generation and nudge ──
-    try:
-        from models.db import db as _db_ap3
-        _autopilot_active = _db_ap3.get_setting(f'autopilot:{agent_id}', '0') == '1'
-    except Exception:
-        _autopilot_active = True
+    _autopilot_active = _is_autopilot(agent_id)
     if _autopilot_active and content and RE_PLAN.search(content):
         _active_plan_nudge = (
             f"[SYSTEM REMINDER] You are in autopilot mode. "
