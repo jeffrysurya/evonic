@@ -715,7 +715,7 @@ def skillset_apply(skillset_id, agent_id, name=None, description=None, model=Non
     try:
         import requests
         import config
-        base_url = f"http://localhost:{getattr(config, 'PORT', 8080)}"
+        base_url = f"http://{getattr(config, 'HOST', 'localhost')}:{getattr(config, 'PORT', 8080)}"
 
         payload = {
             'id': merged.get('id', ''),
