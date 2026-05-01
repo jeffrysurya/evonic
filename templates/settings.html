@@ -282,33 +282,33 @@
                 <!-- Info Tab -->
                 <div id="tool-main-tab-info" class="p-5 space-y-4">
                     <div>
-                        <label class="block mb-1 text-gray-700 text-sm font-medium">ID</label>
+                        <label class="block mb-1 text-gray-700 dark:text-gray-200 text-sm font-medium">ID</label>
                         <input type="text" id="tool-id-input" placeholder="Auto-generated from name if empty"
                             class="w-full p-2.5 border border-gray-300 rounded-md bg-white text-gray-800 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/10">
                     </div>
                     <div>
-                        <label class="block mb-1 text-gray-700 text-sm font-medium">Name *</label>
+                        <label class="block mb-1 text-gray-700 dark:text-gray-200 text-sm font-medium">Name *</label>
                         <input type="text" id="tool-name" required placeholder="e.g., Get Weather"
                             class="w-full p-2.5 border border-gray-300 rounded-md bg-white text-gray-800 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/10">
                     </div>
                     <div>
-                        <label class="block mb-1 text-gray-700 text-sm font-medium">Description</label>
+                        <label class="block mb-1 text-gray-700 dark:text-gray-200 text-sm font-medium">Description</label>
                         <input type="text" id="tool-description" placeholder="Brief description of the tool"
                             class="w-full p-2.5 border border-gray-300 rounded-md bg-white text-gray-800 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/10">
                     </div>
                     <div>
-                        <label class="block mb-1 text-gray-700 text-sm font-medium">Function Name *</label>
+                        <label class="block mb-1 text-gray-700 dark:text-gray-200 text-sm font-medium">Function Name *</label>
                         <input type="text" id="tool-func-name" required placeholder="e.g., get_weather"
                             class="w-full p-2.5 border border-gray-300 rounded-md bg-white text-gray-800 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/10">
                         <small class="text-gray-500 text-xs">The function name used in OpenAI tool calling format</small>
                     </div>
                     <div>
-                        <label class="block mb-1 text-gray-700 text-sm font-medium">Function Description</label>
+                        <label class="block mb-1 text-gray-700 dark:text-gray-200 text-sm font-medium">Function Description</label>
                         <textarea id="tool-func-description" rows="2" placeholder="Description shown to the LLM"
                             class="w-full p-2.5 border border-gray-300 rounded-md bg-white text-gray-800 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/10"></textarea>
                     </div>
                     <div>
-                        <label class="block mb-1 text-gray-700 text-sm font-medium">Parameters (JSON)</label>
+                        <label class="block mb-1 text-gray-700 dark:text-gray-200 text-sm font-medium">Parameters (JSON)</label>
                         <textarea id="tool-parameters" rows="7" placeholder='{"type": "object", "properties": {"location": {"type": "string", "description": "City name"}}, "required": ["location"]}'
                             class="w-full p-2.5 border border-gray-300 rounded-md bg-white text-gray-800 text-sm font-mono focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/10"></textarea>
                         <small class="text-gray-500 text-xs">OpenAI function parameters schema (JSON object)</small>
@@ -359,7 +359,7 @@
                     <!-- Mock Sub-tab -->
                     <div id="tool-op-tab-mock" class="hidden">
                         <div class="mb-4">
-                            <label class="block mb-1 text-gray-700 text-sm font-medium">Mock Response Type</label>
+                            <label class="block mb-1 text-gray-700 dark:text-gray-200 text-sm font-medium">Mock Response Type</label>
                             <select id="tool-mock-type" onchange="toggleMockResponseHelp()"
                                 class="w-full p-2.5 border border-gray-300 rounded-md bg-white text-gray-800 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/10">
                                 <option value="json">JSON Object</option>
@@ -367,7 +367,7 @@
                             </select>
                         </div>
                         <div class="mb-2">
-                            <label class="block mb-1 text-gray-700 text-sm font-medium">Mock Response</label>
+                            <label class="block mb-1 text-gray-700 dark:text-gray-200 text-sm font-medium">Mock Response</label>
                             <textarea id="tool-mock-response" rows="10" placeholder='{"result": "sample data"}'
                                 class="w-full p-2.5 border border-gray-300 rounded-md bg-white text-gray-800 text-sm font-mono focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/10"></textarea>
                             <small id="tool-mock-help-json" class="text-gray-500 text-xs">JSON object that will be returned when this tool is called during evaluation</small>

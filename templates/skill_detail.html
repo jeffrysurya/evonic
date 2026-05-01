@@ -211,7 +211,7 @@ function renderSettings(variables, config) {
         const inputType = v.type === 'number' ? 'number' : 'text';
         return `
         <div class="mb-4">
-            <label class="block mb-1 text-gray-700 text-sm font-medium">${esc(v.label || v.name)}</label>
+            <label class="block mb-1 text-gray-700 dark:text-gray-200 text-sm font-medium">${esc(v.label || v.name)}</label>
             <input type="${inputType}" data-var="${esc(v.name)}" data-type="${esc(v.type || 'string')}"
                    value="${esc(String(val))}"
                    placeholder="${esc(String(v.default || ''))}"

@@ -25,19 +25,19 @@
             <form id="evaluator-form">
                 <input type="hidden" id="evaluator-id">
                 <div class="mb-4">
-                    <label class="block mb-1 text-gray-700 text-sm font-medium">ID</label>
+                    <label class="block mb-1 text-gray-700 dark:text-gray-200 text-sm font-medium">ID</label>
                     <input type="text" id="evaluator-id-input" placeholder="Auto-generated if empty" class="w-full p-2.5 border border-gray-300 rounded-md bg-white text-gray-800 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/10">
                 </div>
                 <div class="mb-4">
-                    <label class="block mb-1 text-gray-700 text-sm font-medium">Name *</label>
+                    <label class="block mb-1 text-gray-700 dark:text-gray-200 text-sm font-medium">Name *</label>
                     <input type="text" id="evaluator-name" required placeholder="Evaluator name" class="w-full p-2.5 border border-gray-300 rounded-md bg-white text-gray-800 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/10">
                 </div>
                 <div class="mb-4">
-                    <label class="block mb-1 text-gray-700 text-sm font-medium">Description</label>
+                    <label class="block mb-1 text-gray-700 dark:text-gray-200 text-sm font-medium">Description</label>
                     <input type="text" id="evaluator-description" placeholder="Brief description" class="w-full p-2.5 border border-gray-300 rounded-md bg-white text-gray-800 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/10">
                 </div>
                 <div class="mb-4">
-                    <label class="block mb-1 text-gray-700 text-sm font-medium">Type</label>
+                    <label class="block mb-1 text-gray-700 dark:text-gray-200 text-sm font-medium">Type</label>
                     <select id="evaluator-type" onchange="toggleEvaluatorType()" class="w-full p-2.5 border border-gray-300 rounded-md bg-white text-gray-800 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/10">
                         <option value="custom">LLM-based (Custom Prompt)</option>
                         <option value="regex">Regex Pattern Matcher</option>
@@ -45,12 +45,12 @@
                     </select>
                 </div>
                 <div class="mb-4" id="eval-prompt-group">
-                    <label class="block mb-1 text-gray-700 text-sm font-medium">Evaluation Prompt</label>
+                    <label class="block mb-1 text-gray-700 dark:text-gray-200 text-sm font-medium">Evaluation Prompt</label>
                     <textarea id="evaluator-prompt" rows="5" placeholder="Prompt template for LLM evaluation. Use {response} and {expected} as placeholders." class="w-full p-2.5 border border-gray-300 rounded-md bg-white text-gray-800 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/10"></textarea>
                     <small class="text-gray-500 text-xs">Use {response}, {expected}, {level} as placeholders</small>
                 </div>
                 <div class="mb-4" id="eval-regex-group">
-                    <label class="block mb-1 text-gray-700 text-sm font-medium">Extraction Regex</label>
+                    <label class="block mb-1 text-gray-700 dark:text-gray-200 text-sm font-medium">Extraction Regex</label>
                     <input type="text" id="evaluator-regex" placeholder="SCORE:\s*(\d+)" class="w-full p-2.5 border border-gray-300 rounded-md bg-white text-gray-800 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/10">
                     <small class="text-gray-500 text-xs">Regex pattern with capture group for score/answer extraction. Example patterns:<br>
                         &bull; Extract number: <code>Jawaban:\s*(\d+)</code><br>
@@ -60,7 +60,7 @@
                     </small>
                 </div>
                 <div class="mb-4">
-                    <label class="block mb-1 text-gray-700 text-sm font-medium">Config (JSON, optional)</label>
+                    <label class="block mb-1 text-gray-700 dark:text-gray-200 text-sm font-medium">Config (JSON, optional)</label>
                     <textarea id="evaluator-config" rows="2" placeholder='{"max_score": 3, "use_expected_as_pattern": true}' class="w-full p-2.5 border border-gray-300 rounded-md bg-white text-gray-800 text-sm font-mono focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/10"></textarea>
                     <small class="text-gray-500 text-xs">Optional settings: <code>max_score</code> (normalize score), <code>use_expected_as_pattern</code> (use expected as regex)</small>
                 </div>

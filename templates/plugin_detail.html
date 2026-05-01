@@ -209,7 +209,7 @@ function renderSettings(variables, config) {
         if (v.type === 'textarea') {
             return `
             <div class="mb-4">
-                <label class="block mb-1 text-gray-700 text-sm font-medium">${esc(v.label || v.name)}</label>
+                <label class="block mb-1 text-gray-700 dark:text-gray-200 text-sm font-medium">${esc(v.label || v.name)}</label>
                 <textarea data-var="${esc(v.name)}" data-type="${esc(v.type)}"
                           placeholder="${esc(String(v.default || ''))}"
                           class="w-full p-2.5 border border-gray-300 rounded-md text-sm font-mono focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/10 resize-none overflow-hidden max-h-[700px] overflow-y-auto"
@@ -220,7 +220,7 @@ function renderSettings(variables, config) {
         const inputType = v.type === 'number' ? 'number' : 'text';
         return `
         <div class="mb-4">
-            <label class="block mb-1 text-gray-700 text-sm font-medium">${esc(v.label || v.name)}</label>
+            <label class="block mb-1 text-gray-700 dark:text-gray-200 text-sm font-medium">${esc(v.label || v.name)}</label>
             <input type="${inputType}" data-var="${esc(v.name)}" data-type="${esc(v.type || 'string')}"
                    value="${esc(String(val))}"
                    placeholder="${esc(String(v.default || ''))}"
