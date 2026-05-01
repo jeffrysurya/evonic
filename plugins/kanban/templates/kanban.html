@@ -338,6 +338,20 @@ html.dark .drag-over { --tw-ring-color: rgb(99 102 241); background-color: rgb(4
     </div>
 </div>
 
+<!-- Trigger Results Modal -->
+<div class="fixed inset-0 bg-black/50 z-50 hidden items-center justify-center" id="kb-trigger-results-modal">
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-lg mx-4 p-6">
+        <div class="flex items-center justify-between mb-4">
+            <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Trigger Results</h2>
+            <button onclick="closeTriggerResultsModal()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 text-xl leading-none">&times;</button>
+        </div>
+        <div id="trigger-results-body" class="max-h-80 overflow-y-auto text-sm"></div>
+        <div class="flex justify-end gap-2 mt-4 pt-4 border-t border-gray-100 dark:border-gray-700">
+            <button onclick="closeTriggerResultsModal()" class="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition">Close</button>
+        </div>
+    </div>
+</div>
+
 <!-- Settings Modal -->
 
 <script src="https://cdn.jsdelivr.net/npm/marked@12.0.0/marked.min.js"></script>
@@ -1155,14 +1169,70 @@ html.dark .drag-over { --tw-ring-color: rgb(99 102 241); background-color: rgb(4
     function triggerAgents() {
         const $btn = $('#trigger-btn');
         $btn.prop('disabled', true);
-        $.post('/api/kanban/agent/check', function() {
-            toast.show('Agents triggered successfully', 'success');
+        $.post('/api/kanban/agent/check', function(resp) {
             setTimeout(loadTasks, 800);
+            if (!resp.details || resp.details.length === 0) {
+                toast.show('No eligible tasks to trigger', 'info');
+                return;
+            }
+            const notified = resp.details.filter(function(d) { return d.success; });
+            const failed = resp.details.filter(function(d) { return !d.success; });
+
+            const reasonLabels = {
+                'busy': 'busy with another task',
+                'no_skill': 'missing kanban skill',
+                'no_session': 'no active session',
+                'deduplicated': 'duplicate (already notified)',
+                'no_assignee': 'no assignee set',
+                'not_eligible': 'not in eligible agents list',
+                'delayed': 'still within delay window',
+            };
+
+            let html = '<div class="space-y-3">';
+
+            if (notified.length > 0) {
+                html += '<div>';
+                html += '<div class="flex items-center gap-2 mb-2"><span class="inline-block w-2 h-2 rounded-full bg-green-500"></span><span class="font-semibold text-green-700 dark:text-green-400">Notified (' + notified.length + ')</span></div>';
+                html += '<ul class="space-y-1 pl-4">';
+                notified.forEach(function(d) {
+                    html += '<li class="flex items-center gap-2 text-gray-700 dark:text-gray-300">';
+                    html += '<svg class="w-3.5 h-3.5 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>';
+                    html += '<span>#' + d.task_id + ' &rarr; ' + esc(d.agent_id) + '</span>';
+                    html += '</li>';
+                });
+                html += '</ul>';
+                html += '</div>';
+            }
+
+            if (failed.length > 0) {
+                html += '<div>';
+                html += '<div class="flex items-center gap-2 mb-2"><span class="inline-block w-2 h-2 rounded-full bg-yellow-500"></span><span class="font-semibold text-yellow-700 dark:text-yellow-400">Skipped (' + failed.length + ')</span></div>';
+                html += '<ul class="space-y-1 pl-4">';
+                failed.forEach(function(d) {
+                    var reason = reasonLabels[d.reason] || d.reason;
+                    var agentLabel = d.agent_id ? esc(d.agent_id) : 'unassigned';
+                    html += '<li class="flex items-start gap-2 text-gray-700 dark:text-gray-300">';
+                    html += '<svg class="w-3.5 h-3.5 text-yellow-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>';
+                    html += '<span>#' + d.task_id + ' (' + agentLabel + ') &mdash; ' + reason + '</span>';
+                    html += '</li>';
+                });
+                html += '</ul>';
+                html += '</div>';
+            }
+
+            html += '</div>';
+
+            $('#trigger-results-body').html(html);
+            $('#kb-trigger-results-modal').removeClass('hidden').addClass('flex');
         }).fail(function() {
             toast.show('Failed to trigger agents', 'error');
         }).always(function() {
             setTimeout(function() { $btn.prop('disabled', false); }, 2000);
         });
+    }
+
+    function closeTriggerResultsModal() {
+        $('#kb-trigger-results-modal').removeClass('flex').addClass('hidden');
     }
 
     // ─── Trigger Per-Task ───
@@ -1433,6 +1503,7 @@ html.dark .drag-over { --tw-ring-color: rgb(99 102 241); background-color: rgb(4
     $('#kb-detail-modal').on('click', function(e) { if (e.target === this) closeDetailModal(); });
     $('#kb-assign-modal').on('click', function(e) { if (e.target === this) closeAssignModal(); });
     $('#kb-trigger-modal').on('click', function(e) { if (e.target === this) closeTriggerModal(); });
+    $('#kb-trigger-results-modal').on('click', function(e) { if (e.target === this) closeTriggerResultsModal(); });
 
     let autoRefreshInterval = null;
     let isAutoRefreshing = false;

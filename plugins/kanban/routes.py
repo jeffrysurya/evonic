@@ -502,8 +502,14 @@ def create_blueprint():
         """Force an immediate scan for eligible agents."""
         try:
             from plugins.kanban.handler import _scan_and_notify
-            _scan_and_notify()
-            return jsonify({'success': True, 'message': 'Check complete'})
+            scan_results = _scan_and_notify()
+            return jsonify({
+                'success': True,
+                'message': 'Check complete',
+                'notified': scan_results.get('notified', 0),
+                'failed': scan_results.get('failed', 0),
+                'details': scan_results.get('details', []),
+            })
         except Exception as e:
             return jsonify({'success': False, 'error': str(e)}), 500
 

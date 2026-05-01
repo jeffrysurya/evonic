@@ -765,11 +765,17 @@ def _scan_stale_tasks(sdk=None):
         pass
 
 
-def _scan_and_notify(sdk=None):
+def _scan_and_notify(sdk=None) -> dict:
+    """Scan todo tasks and notify their assigned eligible agents.
+
+    Returns a dict with result details so callers (esp. the UI) can show
+    which agents were notified and which were skipped and why.
+    """
     config = _load_config()
     eligible = _parse_eligible_agents(config)
+    results = {'notified': 0, 'failed': 0, 'details': []}
     if not eligible:
-        return
+        return results
 
     channel_type = config.get('CHANNEL_TYPE', 'telegram')
     tasks = _load_tasks()
@@ -783,15 +789,63 @@ def _scan_and_notify(sdk=None):
             continue
 
         assignee = task.get('assignee')
+        task_id = task['id']
+        title = task['title']
 
-        if assignee and assignee in eligible:
-            if _is_task_delayed(task, config):
-                _log(
-                    f'Skipping task {task["id"]} (created within delay window {config.get("TASK_DELAY_SECONDS", 300)}s)',
-                    'info', sdk,
-                )
-                continue
-            _notify_agent(assignee, task, channel_type, sdk)
+        if not assignee:
+            results['details'].append({
+                'task_id': task_id,
+                'title': title,
+                'agent_id': None,
+                'success': False,
+                'reason': 'no_assignee',
+            })
+            continue
+
+        if assignee not in eligible:
+            results['details'].append({
+                'task_id': task_id,
+                'title': title,
+                'agent_id': assignee,
+                'success': False,
+                'reason': 'not_eligible',
+            })
+            continue
+
+        if _is_task_delayed(task, config):
+            _log(
+                f'Skipping task {task_id} (created within delay window {config.get("TASK_DELAY_SECONDS", 300)}s)',
+                'info', sdk,
+            )
+            results['details'].append({
+                'task_id': task_id,
+                'title': title,
+                'agent_id': assignee,
+                'success': False,
+                'reason': 'delayed',
+            })
+            continue
+
+        notify_result = _notify_agent(assignee, task, channel_type, sdk)
+        if notify_result.get('success'):
+            results['notified'] += 1
+            results['details'].append({
+                'task_id': task_id,
+                'title': title,
+                'agent_id': assignee,
+                'success': True,
+            })
+        else:
+            results['failed'] += 1
+            results['details'].append({
+                'task_id': task_id,
+                'title': title,
+                'agent_id': assignee,
+                'success': False,
+                'reason': notify_result.get('reason', 'unknown'),
+            })
+
+    return results
 
 
 def _scan_comments_for_followup(sdk=None):
