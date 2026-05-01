@@ -387,6 +387,109 @@ def run_setup(
         return {'error': str(e)}
 
 
+def run_reconfigure(
+    provider: str,
+    model_name: str,
+    base_url: str,
+    api_key: str,
+    tone: str = 'professional',
+    custom_tone_text: str = None,
+    language: str = 'english',
+    sandbox_enabled: bool = False,
+    password: str = '',
+) -> dict:
+    """
+    Reconfigure an existing Evonic setup:
+    1. Update or create LLM model entry in DB and set as default
+    2. Build new system prompt with tone and language
+    3. Update super agent's system prompt
+    4. Update agent sandbox setting
+    5. Store settings (tone, language, sandbox)
+    6. Update admin password if provided
+
+    Returns {'success': True, 'agent_id': str} or {'error': str}.
+    Errors if super agent does not exist (must run setup first).
+    """
+    from routes.agents import _write_system_prompt
+
+    # Must have super agent
+    if not db.has_super_agent():
+        return {'error': 'Super agent does not exist. Run "evonic setup" first.'}
+
+    # Validate language
+    if language not in LANGUAGE_PRESETS:
+        language = 'english'
+
+    # Validate provider and model
+    if not provider or provider not in PROVIDER_DEFAULTS:
+        return {'error': f'Unknown provider: {provider}'}
+    if not model_name.strip():
+        return {'error': 'Model name is required'}
+
+    provider_cfg = PROVIDER_DEFAULTS[provider]
+    resolved_base_url = (base_url or provider_cfg['base_url']).rstrip('/')
+
+    try:
+        # 1. Update or create model in DB as default
+        model_id = f'setup_{provider}'
+        model_data = {
+            'id': model_id,
+            'name': f'{provider_cfg["label"]} ({model_name})',
+            'type': provider_cfg['type'],
+            'provider': provider,
+            'base_url': resolved_base_url,
+            'api_key': api_key or '',
+            'model_name': model_name,
+            'is_default': 1,
+            'enabled': 1,
+        }
+        existing_model = db.get_model_by_id(model_id)
+        if existing_model:
+            db.update_model(model_id, model_data)
+        else:
+            db.create_model(model_data)
+
+        # 2. Build new system prompt (tone + language)
+        tone_prompt = build_system_prompt(tone, custom_tone_text)
+        lang_cfg = LANGUAGE_PRESETS.get(language, LANGUAGE_PRESETS['english'])
+        full_prompt = tone_prompt + '\n' + lang_cfg['instruction'] + '\n'
+
+        # 3. Get super agent and update
+        super_agent = db.get_super_agent()
+        agent_id = super_agent['id']
+
+        # Write SYSTEM.md on disk
+        _write_system_prompt(agent_id, full_prompt)
+
+        # Update system_prompt in DB directly (update_agent does not allow it)
+        with db._connect() as conn:
+            conn.execute(
+                "UPDATE agents SET system_prompt = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?",
+                (full_prompt, agent_id)
+            )
+            conn.commit()
+
+        # 4. Update agent sandbox setting
+        db.update_agent(agent_id, {'sandbox_enabled': 1 if sandbox_enabled else 0})
+
+        # 5. Store settings
+        db.set_setting('super_agent_tone', tone)
+        db.set_setting('agent_language', language)
+        db.set_setting('sandbox_default_enabled', '1' if sandbox_enabled else '0')
+
+        # 6. Update admin password if provided
+        if password:
+            from werkzeug.security import generate_password_hash
+            pw_hash = generate_password_hash(password)
+            env_path = os.path.join(config.BASE_DIR, '.env')
+            _update_env_var(env_path, 'ADMIN_PASSWORD_HASH', pw_hash)
+
+        return {'success': True, 'agent_id': agent_id}
+
+    except Exception as e:
+        return {'error': str(e)}
+
+
 def _update_env_var(env_path, key, value):
     """Update or add an environment variable in a .env file."""
     if not os.path.exists(env_path):

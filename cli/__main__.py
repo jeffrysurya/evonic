@@ -57,6 +57,7 @@ from cli.commands import (
     model_list, model_get, model_add, model_rm,
     update_server, setup_wizard, pass_setup,
     doctor_command,
+    reconfigure_wizard,
 )
 
 
@@ -94,6 +95,13 @@ def main():
         "pass",
         help="Set or change the admin dashboard password",
         description="Set a new admin password or change an existing one for web dashboard authentication.",
+    )
+
+    # --- reconfigure ---
+    subparsers.add_parser(
+        "reconfigure",
+        help="Reconfigure an existing Evonic setup",
+        description="Change LLM provider, model, communication style, language, sandbox, and password on an already configured Evonic instance.",
     )
 
     # --- update ---
@@ -492,6 +500,8 @@ def main():
         setup_wizard()
     elif args.command == "pass":
         pass_setup()
+    elif args.command == "reconfigure":
+        reconfigure_wizard()
     elif args.command == "update":
         update_server(
             check_only=args.check,
