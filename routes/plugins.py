@@ -4,6 +4,7 @@ import os
 import tempfile
 from flask import Blueprint, render_template, jsonify, request, redirect
 from backend.plugin_manager import plugin_manager
+from backend.zip_validator import validate_upload_zip, MAX_UPLOAD_BYTES
 
 plugins_bp = Blueprint('plugins', __name__)
 
@@ -52,11 +53,23 @@ def api_upload_plugin():
     if not file.filename or not file.filename.endswith('.zip'):
         return jsonify({'error': 'File must be a .zip'}), 400
 
+    # --- Size check via Content-Length before reading ---
+    content_length = request.content_length
+    if content_length and content_length > MAX_UPLOAD_BYTES:
+        size_mb = content_length / 1024 / 1024
+        max_mb = MAX_UPLOAD_BYTES // 1024 // 1024
+        return jsonify({'error': f'Upload too large ({size_mb:.1f} MB). Maximum is {max_mb} MB.'}), 413
+
     with tempfile.NamedTemporaryFile(suffix='.zip', delete=False) as tmp:
         file.save(tmp.name)
         tmp_path = tmp.name
 
     try:
+        # --- Validate zip content before extraction ---
+        ok, err = validate_upload_zip(tmp_path, expected_filename=file.filename)
+        if not ok:
+            return jsonify({'error': err}), 400
+
         force = request.form.get('force', '').lower() in ('true', '1', 'yes')
         result = plugin_manager.install_plugin(tmp_path, force=force)
         if 'error' in result:
